@@ -4,6 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require('../controllers/auth');
+const jwt = require('jsonwebtoken')
 
 // Import the User model for database operations
 const User = require('../models/user');
@@ -15,7 +16,6 @@ router.post('/login', async (req, res) => {
     try {
         // Find the user by email
         const user = await User.findOne({ email });
-
         // If user not found or password doesn't match, return an error
         if (!user || !(await user.matchPassword(password))) {
             return res.status(401).json({ message: 'Invalid email or password' });
@@ -65,6 +65,11 @@ function generateToken(user) {
     // Implement JWT token generation logic here
     // For example, you can use the jsonwebtoken package
     // Return the generated token
+     
+     const token = jwt.sign({user:user}, process.env.JWT_SECRET, {
+       expiresIn: '5h',
+     }); 
+     return token;
 }
 
 module.exports = router;
